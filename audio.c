@@ -60,7 +60,6 @@ static inline void bar_calc(void) {
 
   for (size_t i = 0; i < bars.len; ++i) {
     bars.buf[i] *= val_coef;
-    printf("%u\n", scale);
   }
 }
 
