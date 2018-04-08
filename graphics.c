@@ -17,9 +17,9 @@ void drawBars(graphics_options *prop)
 	float curveRad = prop->curve_radius;
 	float barWidth = 2.0f / bars.len;
 
-	for (int b = 0; b < bars.len; b++) {
-		glBegin(GL_POLYGON);
+        glBegin(GL_POLYGON);
 
+	for (int b = 0; b < bars.len; b++) {
 		float barx = -1.0f + barWidth * b;
 		float barHeight = (float)bars.buf[b] / (float)BAR_MAX;
 
@@ -28,45 +28,24 @@ void drawBars(graphics_options *prop)
 		x = barx + prop->spacing / 2;
 		y = -barHeight;
 
-		for (int i = 0; i <= 5; i++) {
-			float anglerad = PI * 90.0f / 5.0f * (float)i / 180.0f;
-			float cx = sinf(anglerad) * curveRad;
-			float cy = cosf(anglerad) * curveRad;
-			glVertex2f(x + curveRad - cx, y + curveRad - cy);
-		}
+                glVertex2f(x, y);
 
 		x = barx + prop->spacing / 2;
 		y = barHeight;
 
-		for (int i = 5; i >= 0; i--) {
-			float anglerad = PI * 90.0f / 5.0f * (float)i / 180.0f;
-			float cx = sinf(anglerad) * curveRad;
-			float cy = cosf(anglerad) * curveRad;
-			glVertex2f(x + curveRad - cx, y - curveRad + cy);
-		}
+                glVertex2f(x, y);
 
 		x = barx + barWidth - prop->spacing / 2;
 		y = barHeight;
 
-		for (int i = 0; i <= 5; i++) {
-			float anglerad = PI * 90.0f / 5.0f * (float)i / 180.0f;
-			float cx = sinf(anglerad) * curveRad;
-			float cy = cosf(anglerad) * curveRad;
-			glVertex2f(x - curveRad + cx, y - curveRad + cy);
-		}
+                glVertex2f(x, y);
 
 		x = barx + barWidth - prop->spacing / 2;
 		y = -barHeight;
 
-		for (int i = 5; i >= 0; i--) {
-			float anglerad = PI * 90.0f / 5.0f * (float)i / 180.0f;
-			float cx = sinf(anglerad) * curveRad;
-			float cy = cosf(anglerad) * curveRad;
-			glVertex2f(x - curveRad + cx, y + curveRad - cy);
-		}
-
-		glEnd();
+                glVertex2f(x, y);
 	}
+        glEnd();
 }
 
 void resizeCallback(GLFWwindow *win, int w, int h)
