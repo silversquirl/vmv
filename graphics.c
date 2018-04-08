@@ -87,14 +87,32 @@ int mainloop(graphics_options p) {
   glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
-  window = glfwCreateWindow(512, 1024, "vmv", NULL, NULL);
+  window = glfwCreateWindow(p.pos.width, p.pos.height, "vmv", NULL, NULL);
   glfwSetFramebufferSizeCallback(window, resizeCallback);
 
-  glfwSetWindowPos(window, 100, 100);
+  GLFWmonitor *mon;
 
+  if (p.monitor < 0) {
+    mon = glfwGetPrimaryMonitor();
+  } else {
+    int count;
+    GLFWmonitor **monitors = glfwGetMonitors(&count);
+    if (p.monitor >= count) {
+      fprintf(stderr, "Invalid monitor specified!\n");
+      return -1;
+    }
+    mon = monitors[p.monitor];
+  }
+
+  int offsetx, offsety; // x and y offsets for the given monitor
+  glfwGetMonitorPos(mon, &offsetx, &offsety);
   const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-  glfwSetWindowPos(window, mode->width / 2 - 256, mode->height / 2 - 512);
+  if (p.pos.center) {
+    glfwSetWindowPos(window, offsetx + mode->width / 2 - p.pos.width / 2, offsety + mode->height / 2 - p.pos.height / 2);
+  } else {
+    glfwSetWindowPos(window, offsetx + p.pos.x, offsety + p.pos.y);
+  }
 
   if (window == NULL) {
     fprintf(stderr, "Failed to create GLFW window!\n");
@@ -130,7 +148,7 @@ int mainloop(graphics_options p) {
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-  } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window));
+  } while ((p.close_key >= 0 ? glfwGetKey(window, p.close_key) != GLFW_PRESS : 1) && !glfwWindowShouldClose(window));
 
   glfwTerminate();
   timer_lib_shutdown();
