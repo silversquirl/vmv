@@ -23,6 +23,8 @@ size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
 
 struct buffer bars;
 
+// Audio processing state
+FILE *src;
 int16_t abuf[CHUNK_SIZE];
 double *in;
 complex *out;
@@ -48,7 +50,7 @@ static inline void bar_calc(void) {
 }
 
 void process_audio(void) {
-  size_t n = read_chunk(abuf, CHUNK_SIZE, stdin);
+  size_t n = read_chunk(abuf, CHUNK_SIZE, src);
   for (size_t i = 0; i < n; ++i) {
     in[i] = abuf[i];
   }
@@ -56,7 +58,9 @@ void process_audio(void) {
   bar_calc();
 }
 
-void audio_init(void) {
+void audio_init(FILE *source_file) {
+  src = source_file;
+
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
   out = fftw_alloc_complex(FFT_SIZE);
 

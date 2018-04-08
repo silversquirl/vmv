@@ -3,7 +3,7 @@
 
 CC := c99
 
-CFLAGS := -Wall -Werror
+CFLAGS := -Wall -Werror $(patsubst no,-DNO_POSIX,$(POSIX))
 LDFLAGS := -lfftw3 -lm
 
 all: visualiser
