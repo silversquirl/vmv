@@ -54,7 +54,7 @@ static inline void bar_calc(void) {
       x += cabs(out[i]);
     }
   }
-  
+
   scale = max * SCALE_RATIO + scale * (1 - SCALE_RATIO);
   double val_coef = (double)BAR_MAX / scale;
 

@@ -150,7 +150,7 @@ int mainloop(graphics_options p)
 		process_audio();
 		if (timer_elapsed(start) < 1.0f / p.fps_cap)
 			continue;
-		
+
 		start = timer_current();
 
 		glClear(GL_COLOR_BUFFER_BIT);
