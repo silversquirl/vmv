@@ -38,7 +38,6 @@ int main() {
   audio_init(audio_source);
 
   graphics_options gopt = {
-    .curve_radius = 0.0,
     .fps_cap = 60,
     .bar_color = { 1.0, 0.0, 1.0 },
     .spacing = 0.1f,
