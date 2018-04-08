@@ -8,6 +8,7 @@
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
+#define SCALE_RATIO 0.2 // Weight put on new maximum
 #define NBAR 10
 
 size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
@@ -24,6 +25,7 @@ size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
 struct buffer bars;
 
 // Audio processing state
+unsigned scale;
 FILE *src;
 int16_t abuf[CHUNK_SIZE];
 double *in;
@@ -31,21 +33,34 @@ complex *out;
 fftw_plan p;
 
 static inline void bar_calc(void) {
-  double coef = (bars.len - 1) / log(FFT_SIZE - 1);
+  double idx_coef = (bars.len - 1) / log(FFT_SIZE - 1);
   double x = 0;
+  unsigned max = 0;
   for (size_t i = 0, old = 0, n = 0; i <= FFT_SIZE; ++i, ++n) {
-    size_t cur = coef * log1p(i);
+    size_t cur = idx_coef * log1p(i);
     if (old != cur) {
-      bars.buf[cur] = x / n;
+      x /= n;
+      bars.buf[cur] = x;
+      if (x > max) max = x;
+
       x = (bars.buf[cur] - bars.buf[old]) / (double)(cur - old);
       for (size_t j = old + 1; j < cur; ++j)
         bars.buf[j] = bars.buf[j - 1] + x;
+
       x = 0;
       n = 0;
       old = cur;
     } else {
-      x += out[i];
+      x += cabs(out[i]);
     }
+  }
+  
+  scale = max * SCALE_RATIO + scale * (1 - SCALE_RATIO);
+  double val_coef = (double)BAR_MAX / scale;
+
+  for (size_t i = 0; i < bars.len; ++i) {
+    bars.buf[i] *= val_coef;
+    printf("%u\n", scale);
   }
 }
 
@@ -60,6 +75,8 @@ void process_audio(void) {
 
 void audio_init(FILE *source_file) {
   src = source_file;
+
+  scale = INT16_MAX;
 
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
   out = fftw_alloc_complex(FFT_SIZE);
