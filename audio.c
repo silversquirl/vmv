@@ -8,7 +8,8 @@
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
-#define SCALE_RATIO 0.2 // Weight put on new maximum
+#define SCALE_RATIO_DOWN 0.2 // Weight put on new maximum when scaling down
+#define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
 #define NBAR 10
 
 size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
@@ -55,7 +56,11 @@ static inline void bar_calc(void) {
     }
   }
 
-  scale = max * SCALE_RATIO + scale * (1 - SCALE_RATIO);
+  if (max > scale) {
+    scale = max * SCALE_RATIO_UP + scale * (1 - SCALE_RATIO_UP);
+  } else if (max < scale) {
+    scale = max * SCALE_RATIO_DOWN + scale * (1 - SCALE_RATIO_DOWN);
+  }
   double val_coef = (double)BAR_MAX / scale;
 
   for (size_t i = 0; i < bars.len; ++i) {
