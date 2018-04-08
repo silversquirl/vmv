@@ -10,6 +10,7 @@ typedef struct {
     float blue;
   } bar_color;
   float spacing;
+  float vertical_scale;
 
   int fps_cap;
   int monitor; // -1 for default

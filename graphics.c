@@ -22,22 +22,22 @@ void drawBars(graphics_options *prop) {
     glColor3f(prop->bar_color.red, prop->bar_color.green, prop->bar_color.blue);
 
     x = barx + prop->spacing / 2;
-    y = -barHeight;
+    y = -barHeight * prop->vertical_scale;
 
     glVertex2f(x, y);
 
     x = barx + prop->spacing / 2;
-    y = barHeight;
+    y = barHeight * prop->vertical_scale;
 
     glVertex2f(x, y);
 
     x = barx + barWidth - prop->spacing / 2;
-    y = barHeight;
+    y = barHeight * prop->vertical_scale;
 
     glVertex2f(x, y);
 
     x = barx + barWidth - prop->spacing / 2;
-    y = -barHeight;
+    y = -barHeight * prop->vertical_scale;
 
     glVertex2f(x, y);
   }

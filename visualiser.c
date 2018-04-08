@@ -41,6 +41,7 @@ int main() {
     .fps_cap = 60,
     .bar_color = { 1.0, 0.0, 1.0 },
     .spacing = 0.1f,
+    .vertical_scale = 0.95f,
     .close_key = 0,
     .monitor = -1,
     .pos = {0, 0, 400, 600, 0},
