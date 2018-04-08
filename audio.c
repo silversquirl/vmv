@@ -8,7 +8,7 @@
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
-#define NBAR 64
+#define NBAR 10
 
 size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
   size_t n = fread(buf, sizeof *buf, nmemb, f);

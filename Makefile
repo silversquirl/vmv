@@ -3,8 +3,20 @@
 
 CC := c99
 
-CFLAGS := -Wall -Werror $(patsubst no,-DNO_POSIX,$(POSIX))
-LDFLAGS := -lfftw3 -lm
+CMACROS :=
+
+ifdef NO_POSIX
+CMACROS += NO_POSIX
+else
+CMACROS += _POSIX_C_SOURCE=200809L
+endif
+
+ifdef STATIC
+CMACROS += GLEW_STATIC
+endif
+
+CFLAGS := -Wall -Werror $(patsubst %,-D%,$(CMACROS))
+LDFLAGS := -lfftw3 -lm -lGL -lGLEW -lglfw
 
 all: visualiser
 
@@ -12,7 +24,7 @@ clean:
 	rm -f visualiser
 	rm -f *.o
 
-visualiser: visualiser.o audio.o
+visualiser: visualiser.o audio.o graphics.o timer.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c %.h

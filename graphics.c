@@ -1,41 +1,15 @@
-#define GLEW_STATIC
-
 #define PI 3.14159265358979323846
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <math.h>
-#include "timer.h"
+#include <stdlib.h>
+#include <stdio.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
-#define BAR_MAX 16
-struct { size_t len; unsigned int *buf; } bars;
-
-typedef struct {
-	float curve_radius;
-	int fps_cap;
-	struct {
-		float red;
-		float green;
-		float blue;
-	} bar_color;
-	char close_key;
-	float spacing;
-	int monitor; // -1 for default
-	struct {
-		unsigned int x, y, width, height;
-		int center; // When center != 0, x and y are ignored
-	} pos;
-} graphics_options;
-
-typedef struct {
-	unsigned int width, height, refresh_rate;
-} monitor_info;
+#include "audio.h"
+#include "graphics.h"
+#include "timer.h"
 
 GLFWwindow *window;
-
-void process_audio(void) {}
 
 void drawBars(graphics_options *prop)
 {
@@ -101,7 +75,7 @@ void resizeCallback(GLFWwindow *win, int w, int h)
 }
 
 /* Gets information about a specific monitor. Use -1 for the default monitor. */
-monitor_info get_monitor_details(int id)
+int get_monitor_details(int id, monitor_info *info)
 {
 	GLFWmonitor *monitor;
 	if (id < 0) {
@@ -111,27 +85,25 @@ monitor_info get_monitor_details(int id)
 		int count;
 		GLFWmonitor **monitors = glfwGetMonitors(&count);
 		if (id > count) {
-			fprintf(stderr, "Invalid monitor specified!");
-			return;
+			fprintf(stderr, "Invalid monitor specified!\n");
+			return -1;
 		}
 		monitor = monitors[id];
 	}
 
 	const GLFWvidmode *mode = glfwGetVideoMode(monitor);
 
-	monitor_info info;
+	info->width = mode->width;
+	info->height = mode->height;
+	info->refresh_rate = mode->refreshRate;
 
-	info.width = mode->width;
-	info.height = mode->height;
-	info.refresh_rate = mode->refreshRate;
-
-	return info;
+	return 0;
 }
 
 int mainloop(graphics_options p)
 {
 	if (!glfwInit()) {
-		fprintf(stderr, "Failed to initialize GLFW!");
+		fprintf(stderr, "Failed to initialize GLFW!\n");
 		return -1;
 	}
 
@@ -144,7 +116,7 @@ int mainloop(graphics_options p)
 	glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
-	window = glfwCreateWindow(512, 1024, "VkVis", NULL, NULL);
+	window = glfwCreateWindow(512, 1024, "vmv", NULL, NULL);
 	glfwSetFramebufferSizeCallback(window, resizeCallback);
 
 	glfwSetWindowPos(window, 100, 100);
@@ -154,7 +126,7 @@ int mainloop(graphics_options p)
 	glfwSetWindowPos(window, mode->width / 2 - 256, mode->height / 2 - 512);
 
 	if (window == NULL) {
-		fprintf(stderr, "Failed to create GLFW window!");
+		fprintf(stderr, "Failed to create GLFW window!\n");
 		glfwTerminate();
 		return -1;
 	}
@@ -162,7 +134,7 @@ int mainloop(graphics_options p)
 	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK) {
-		fprintf(stderr, "Failed to initialize GLEW!");
+		fprintf(stderr, "Failed to initialize GLEW!\n");
 		glfwTerminate();
 		return -1;
 	}
@@ -171,29 +143,16 @@ int mainloop(graphics_options p)
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-	float curveRad = 0.25f;
-
-	tick_t start, time;
-	tick_t tick, freq, res;
-
 	timer_lib_initialize();
-
-	res = 0xFFFFFFFFFFFFFFFFULL;
-	freq = timer_ticks_per_second();
+	tick_t start, time;
 	start = timer_current();
 
 	do {
+    process_audio();
+
 		time = timer_current();
-		do {
-			tick = timer_elapsed_ticks(time);
-		} while (!tick);
-
-		if (tick < res)
-			res = tick;
-
 		if (timer_elapsed(start) < 1.0f / p.fps_cap)
 			continue;
-
 		start = time;
 
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -202,30 +161,9 @@ int mainloop(graphics_options p)
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-
-		printf("Frame!\r\n");
-
 	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window));
 
 	glfwTerminate();
 
 	return 0;
-}
-
-int main(int argc, char *argv[])
-{
-	bars.len = 10;
-	unsigned int bs[] = {16, 8, 4, 2, 1, 1, 2, 4, 8, 16};
-	bars.buf = bs;
-
-	graphics_options p;
-
-	p.curve_radius = 0.05f;
-	p.bar_color.red = 1.0f;
-	p.bar_color.green = 0.0f;
-	p.bar_color.blue = 0.0f;
-	p.spacing = 0.1f;
-	p.fps_cap = 60;
-
-	return mainloop(p);
 }

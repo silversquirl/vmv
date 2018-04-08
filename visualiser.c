@@ -1,7 +1,3 @@
-#ifndef NO_POSIX
-#define _POSIX_C_SOURCE 200809L
-#endif
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -11,6 +7,7 @@
 
 #include "audio.h"
 #include "config.h"
+#include "graphics.h"
 
 #ifndef NO_POSIX
 int spawn_audio_producer(void) {
@@ -39,10 +36,16 @@ int main() {
 #endif
 
   audio_init(audio_source);
-  for (;;) {
-    process_audio();
-    for (size_t i = 0; i < bars.len; ++i)
-      printf("%u ", bars.buf[i]);
-    putchar('\n');
-  }
+
+  graphics_options gopt = {
+    .curve_radius = 0.0,
+    .fps_cap = 60,
+    .bar_color = { 1.0, 0.0, 1.0 },
+    .spacing = 0.1f,
+    .close_key = 0,
+    .monitor = -1,
+    .pos = {0, 0, 400, 600, 0},
+  };
+
+  mainloop(gopt);
 }
