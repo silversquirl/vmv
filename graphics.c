@@ -144,16 +144,14 @@ int mainloop(graphics_options p)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	timer_lib_initialize();
-	tick_t start, time;
-	start = timer_current();
+	tick_t start = 0;
 
 	do {
-    process_audio();
-
-		time = timer_current();
+		process_audio();
 		if (timer_elapsed(start) < 1.0f / p.fps_cap)
 			continue;
-		start = time;
+		
+		start = timer_current();
 
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -164,6 +162,7 @@ int mainloop(graphics_options p)
 	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && !glfwWindowShouldClose(window));
 
 	glfwTerminate();
+	timer_lib_shutdown();
 
 	return 0;
 }
