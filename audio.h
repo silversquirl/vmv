@@ -1,5 +1,5 @@
-#ifndef __VISUALISER_AUDIO_H__
-#define __VISUALISER_AUDIO_H__
+#ifndef __VMV_AUDIO_H__
+#define __VMV_AUDIO_H__
 
 #define BAR_MAX 1024
 
