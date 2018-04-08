@@ -13,7 +13,7 @@ void drawBars(graphics_options *prop) {
   float x, y;
   float barWidth = 2.0f / bars.len;
 
-  glBegin(GL_POLYGON);
+  glBegin(GL_QUADS);
 
   for (int b = 0; b < bars.len; b++) {
     float barx = -1.0f + barWidth * b;
