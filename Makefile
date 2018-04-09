@@ -27,7 +27,7 @@ clean:
 	rm -f *.o
 
 visualiser: visualiser.o audio.o graphics.o timer.o
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<
