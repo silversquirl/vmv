@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <lua.h>
+#include <lualib.h>
 
 #ifndef NO_POSIX
 #include <unistd.h>
@@ -8,6 +10,7 @@
 #include "audio.h"
 #include "config.h"
 #include "graphics.h"
+#include "lua_config.h"
 
 #ifndef NO_POSIX
 int spawn_audio_producer(void) {
@@ -35,16 +38,17 @@ int main() {
   FILE *audio_source = fdopen(audio_fd, "rb");
 #endif
 
+  lua_State *L;
+  init_lua("config.lua", &L);
+
   audio_init(audio_source);
 
   graphics_options gopt = {
     .fps_cap = 60,
-    .bar_color = { 1.0, 0.0, 1.0 },
-    .spacing = 0.1f,
-    .vertical_scale = 0.95f,
     .close_key = 0,
     .monitor = -1,
     .pos = {0, 0, 400, 600, 0},
+    .L = L,
   };
 
   mainloop(gopt);

@@ -6,60 +6,9 @@
 #include "audio.h"
 #include "graphics.h"
 #include "timer.h"
-#include "visualisations.h"
-
-#include <lua.h>
-#include <lualib.h>
-
-lua_State *L;
+#include "lua_api.h"
 
 GLFWwindow *window;
-
-void drawBars(graphics_options *prop) {
-  //float x, y;
-  //float barWidth = 2.0f / bars.len;
-
-  glBegin(GL_QUADS);
-
-    glColor3f(prop->bar_color.red, prop->bar_color.green, prop->bar_color.blue);
-  /*for (int b = 0; b < bars.len; b++) {
-    float barx = -1.0f + barWidth * b;
-    float barHeight = (float)bars.buf[b] / (float)BAR_MAX;
-
-    glColor3f(prop->bar_color.red, prop->bar_color.green, prop->bar_color.blue);
-
-    x = barx + prop->spacing / 2;
-    y = -barHeight * prop->vertical_scale;
-
-    glVertex2f(x, y);
-
-    x = barx + prop->spacing / 2;
-    y = barHeight * prop->vertical_scale;
-
-    glVertex2f(x, y);
-
-    x = barx + barWidth - prop->spacing / 2;
-    y = barHeight * prop->vertical_scale;
-
-    glVertex2f(x, y);
-
-    x = barx + barWidth - prop->spacing / 2;
-    y = -barHeight * prop->vertical_scale;
-
-    glVertex2f(x, y);
-  }*/
-
-  int vert_count;
-  double *vertices;
-
-  run_visualisation(L, bars.len, bars.buf, &vert_count, &vertices);
-
-  for (int i = 0; i < vert_count; i++) {
-    glVertex2f(vertices[i*2], vertices[i*2 + 1]);
-  }
-
-  glEnd();
-}
 
 void resizeCallback(GLFWwindow *win, int w, int h) {
   glViewport(0, 0, w, h);
@@ -90,7 +39,6 @@ int get_monitor_details(int id, monitor_info *info) {
 }
 
 int mainloop(graphics_options p) {
-  prepare_visualiser("test.lua", &L);
   if (!glfwInit()) {
     fprintf(stderr, "Failed to initialize GLFW!\n");
     return -1;
@@ -162,7 +110,7 @@ int mainloop(graphics_options p) {
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    drawBars(&p);
+    run_visualisation(p.L, bars.buf, bars.len);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
