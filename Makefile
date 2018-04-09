@@ -1,22 +1,24 @@
 .POSIX:
 .PHONY: all clean
 
-CC := c99
+CFLAGS := -Wall -Werror
+LDFLAGS := -lm
 
-CMACROS :=
+include config.mk
 
 ifdef NO_POSIX
-CMACROS += NO_POSIX
+CFLAGS += -DNO_POSIX
 else
-CMACROS += _POSIX_C_SOURCE=200809L
+CFLAGS += -D_POSIX_C_SOURCE=200809L
 endif
 
-ifdef STATIC
-CMACROS += GLEW_STATIC
+ifdef STATIC_GLEW
+CFLAGS += -DGLEW_STATIC
 endif
 
-CFLAGS := -Wall -Werror $(patsubst %,-D%,$(CMACROS))
-LDFLAGS := -lfftw3 -lm -lGL -lGLEW -lglfw
+ifdef STATIC_GLFW
+LDFLAGS += -lX11 -lpthread -ldl
+endif
 
 all: visualiser
 
