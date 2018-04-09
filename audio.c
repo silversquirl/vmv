@@ -8,8 +8,10 @@
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
-#define SCALE_RATIO_DOWN 0.2 // Weight put on new maximum when scaling down
+#define SCALE_RATIO_DOWN 0.05 // Weight put on new maximum when scaling down
 #define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
+#define SMOOTH_RATIO_DOWN 0.1 // Weight put on new value when it's less than the old
+#define SMOOTH_RATIO_UP 1.0 // Weight put on new value when it's greater than the old
 #define NBAR 10
 
 size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
@@ -37,16 +39,17 @@ static inline void bar_calc(void) {
   double idx_coef = (bars.len - 1) / log(FFT_SIZE - 1);
   double x = 0;
   unsigned max = 0;
+  unsigned tmp[bars.len];
   for (size_t i = 0, old = 0, n = 0; i <= FFT_SIZE; ++i, ++n) {
     size_t cur = idx_coef * log1p(i);
     if (old != cur) {
       x /= n;
-      bars.buf[cur] = x;
+      tmp[cur] = x;
       if (x > max) max = x;
 
-      x = (bars.buf[cur] - bars.buf[old]) / (double)(cur - old);
+      x = (tmp[cur] - tmp[old]) / (double)(cur - old);
       for (size_t j = old + 1; j < cur; ++j)
-        bars.buf[j] = bars.buf[j - 1] + x;
+        tmp[j] = tmp[j - 1] + x;
 
       x = 0;
       n = 0;
@@ -64,7 +67,12 @@ static inline void bar_calc(void) {
   double val_coef = (double)BAR_MAX / scale;
 
   for (size_t i = 0; i < bars.len; ++i) {
-    bars.buf[i] *= val_coef;
+    x = tmp[i] * val_coef;
+    if (x > bars.buf[i]) {
+      bars.buf[i] = x * SMOOTH_RATIO_UP + bars.buf[i] * (1 - SMOOTH_RATIO_UP);
+    } else if (x < bars.buf[i]) {
+      bars.buf[i] = x * SMOOTH_RATIO_DOWN + bars.buf[i] * (1 - SMOOTH_RATIO_DOWN);
+    }
   }
 }
 
