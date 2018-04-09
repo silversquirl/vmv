@@ -118,6 +118,7 @@ packages=(
   glfw3
   glew
   gl
+  lua-5.3
 )
 
 for pkg in "${packages[@]}"; do

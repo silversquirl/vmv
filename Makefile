@@ -16,9 +16,7 @@ ifdef STATIC_GLEW
 CFLAGS += -DGLEW_STATIC
 endif
 
-ifdef STATIC_GLFW
 LDFLAGS += -lX11 -lpthread -ldl
-endif
 
 all: visualiser
 
@@ -26,8 +24,8 @@ clean:
 	rm -f visualiser
 	rm -f *.o
 
-visualiser: visualiser.o audio.o graphics.o timer.o
-	$(CC) $(LDFLAGS) -o $@ $^
+visualiser: visualiser.o audio.o graphics.o timer.o visualisations.o
+	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c %.h
 	$(CC) $(CFLAGS) -c $<

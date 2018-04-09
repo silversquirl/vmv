@@ -6,16 +6,23 @@
 #include "audio.h"
 #include "graphics.h"
 #include "timer.h"
+#include "visualisations.h"
+
+#include <lua.h>
+#include <lualib.h>
+
+lua_State *L;
 
 GLFWwindow *window;
 
 void drawBars(graphics_options *prop) {
-  float x, y;
-  float barWidth = 2.0f / bars.len;
+  //float x, y;
+  //float barWidth = 2.0f / bars.len;
 
   glBegin(GL_QUADS);
 
-  for (int b = 0; b < bars.len; b++) {
+    glColor3f(prop->bar_color.red, prop->bar_color.green, prop->bar_color.blue);
+  /*for (int b = 0; b < bars.len; b++) {
     float barx = -1.0f + barWidth * b;
     float barHeight = (float)bars.buf[b] / (float)BAR_MAX;
 
@@ -40,7 +47,17 @@ void drawBars(graphics_options *prop) {
     y = -barHeight * prop->vertical_scale;
 
     glVertex2f(x, y);
+  }*/
+
+  int vert_count;
+  double *vertices;
+
+  run_visualisation(L, bars.len, bars.buf, &vert_count, &vertices);
+
+  for (int i = 0; i < vert_count; i++) {
+    glVertex2f(vertices[i*2], vertices[i*2 + 1]);
   }
+
   glEnd();
 }
 
@@ -73,6 +90,7 @@ int get_monitor_details(int id, monitor_info *info) {
 }
 
 int mainloop(graphics_options p) {
+  prepare_visualiser("test.lua", &L);
   if (!glfwInit()) {
     fprintf(stderr, "Failed to initialize GLFW!\n");
     return -1;
