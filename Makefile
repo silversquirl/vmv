@@ -20,13 +20,16 @@ ifdef STATIC_GLFW
 LDFLAGS += -lX11 -lpthread -ldl
 endif
 
+SOURCE := $(wildcard *.c)
+OBJECTS := $(patsubst %.c,%.o,$(SOURCE))
+
 all: visualiser
 
 clean:
 	rm -f visualiser
 	rm -f *.o
 
-visualiser: visualiser.o audio.o graphics.o timer.o
+visualiser: $(OBJECTS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c %.h
