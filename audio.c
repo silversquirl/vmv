@@ -85,13 +85,18 @@ void process_audio(void) {
   bar_calc();
 }
 
-void audio_init(FILE *source_file) {
+int audio_init(FILE *source_file) {
   src = source_file;
 
   scale = INT16_MAX;
 
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
+  if (!in) return -1;
   out = fftw_alloc_complex(FFT_SIZE);
+  if (!out) {
+    fftw_free(in);
+    return -1;
+  }
 
   printf("Initialising FFT plan... ");
   fflush(stdout);
@@ -99,6 +104,12 @@ void audio_init(FILE *source_file) {
   puts("Done");
 
   bars.buf = calloc(NBAR, sizeof *bars.buf);
+  if (!bars.buf) {
+    fftw_free(in);
+    fftw_free(out);
+    return -1;
+  }
   bars.len = NBAR;
+  return 0;
 }
 
