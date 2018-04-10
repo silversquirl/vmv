@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <soundio/soundio.h>
 #include "audio.h"
 #include "graphics.h"
 #include "timer.h"
@@ -39,7 +40,6 @@ int get_monitor_details(int id, struct monitor_info *info) {
 }
 
 int mainloop(struct config *config) {
-  glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
@@ -97,6 +97,7 @@ int mainloop(struct config *config) {
   tick_t start = 0;
 
   while (!glfwWindowShouldClose(window)) {
+    soundio_flush_events(config->sinfo.soundio);
     process_audio();
 
     if (timer_elapsed(start) < 1.0f / config->fps_cap)

@@ -4,6 +4,8 @@
 #include <lua.h>
 #include <lualib.h>
 
+#include "sound_io.h"
+
 struct config {
   lua_State *lua;
 
@@ -16,6 +18,7 @@ struct config {
     char center; // When true, x and y are ignored
   } pos;
   int visualiser_ref;
+  struct soundinfo sinfo;
 };
 
 int init_lua(const char *config_file, struct config *config);

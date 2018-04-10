@@ -24,6 +24,8 @@ ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
 
+LDFLAGS += -lsoundio
+
 SOURCE := $(wildcard *.c)
 OBJECTS := $(patsubst %.c,%.o,$(SOURCE))
 
