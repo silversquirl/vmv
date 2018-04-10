@@ -24,13 +24,16 @@ ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
 
+SOURCE := $(wildcard *.c)
+OBJECTS := $(patsubst %.c,%.o,$(SOURCE))
+
 all: visualiser
 
 clean:
 	rm -f visualiser
 	rm -f *.o
 
-visualiser: visualiser.o audio.o graphics.o timer.o lua_api.o lua_config.o
+visualiser: $(OBJECTS)
 	$(CC) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c %.h
