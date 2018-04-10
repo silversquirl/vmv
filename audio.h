@@ -11,6 +11,6 @@ extern struct buffer {
 } bars;
 
 void process_audio(void);
-void audio_init(FILE *source_file);
+int audio_init(FILE *source_file);
 
 #endif
