@@ -15,7 +15,7 @@ void resizeCallback(GLFWwindow *win, int w, int h) {
 }
 
 /* Gets information about a specific monitor. Use -1 for the default monitor. */
-int get_monitor_details(int id, monitor_info *info) {
+int get_monitor_details(int id, struct monitor_info *info) {
   GLFWmonitor *monitor;
   if (id < 0) {
     monitor = glfwGetPrimaryMonitor();
@@ -38,7 +38,7 @@ int get_monitor_details(int id, monitor_info *info) {
   return 0;
 }
 
-int mainloop(graphics_options p) {
+int mainloop(struct config *config) {
   if (!glfwInit()) {
     fprintf(stderr, "Failed to initialize GLFW!\n");
     return -1;
@@ -53,32 +53,32 @@ int mainloop(graphics_options p) {
   glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
 #endif
 
-  window = glfwCreateWindow(p.pos.width, p.pos.height, "vmv", NULL, NULL);
+  window = glfwCreateWindow(config->pos.width, config->pos.height, "vmv", NULL, NULL);
   glfwSetFramebufferSizeCallback(window, resizeCallback);
 
   GLFWmonitor *mon;
 
-  if (p.monitor < 0) {
+  if (config->monitor < 0) {
     mon = glfwGetPrimaryMonitor();
   } else {
     int count;
     GLFWmonitor **monitors = glfwGetMonitors(&count);
-    if (p.monitor >= count) {
+    if (config->monitor >= count) {
       fprintf(stderr, "Invalid monitor specified!\n");
       return -1;
     }
-    mon = monitors[p.monitor];
+    mon = monitors[config->monitor];
   }
 
   int offsetx, offsety; // x and y offsets for the given monitor
   glfwGetMonitorPos(mon, &offsetx, &offsety);
   const GLFWvidmode *mode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-  if (p.pos.center) {
-    glfwSetWindowPos(window, offsetx + mode->width / 2 - p.pos.width / 2, offsety + mode->height / 2 - p.pos.height / 2);
-  } else {
-    glfwSetWindowPos(window, offsetx + p.pos.x, offsety + p.pos.y);
+  if (config->pos.center) {
+    config->pos.x = (mode->width - config->pos.width) / 2;
+    config->pos.y = (mode->height - config->pos.height) / 2;
   }
+  glfwSetWindowPos(window, offsetx + config->pos.x, offsety + config->pos.y);
 
   if (window == NULL) {
     fprintf(stderr, "Failed to create GLFW window!\n");
@@ -101,20 +101,24 @@ int mainloop(graphics_options p) {
   timer_lib_initialize();
   tick_t start = 0;
 
-  do {
+  while (!glfwWindowShouldClose(window)) {
     process_audio();
-    if (timer_elapsed(start) < 1.0f / p.fps_cap)
-      continue;
 
+    if (timer_elapsed(start) < 1.0f / config->fps_cap)
+      continue;
     start = timer_current();
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    run_visualisation(p.L, bars.buf, bars.len);
+    run_visualisation(config, bars);
 
     glfwSwapBuffers(window);
     glfwPollEvents();
-  } while ((p.close_key >= 0 ? glfwGetKey(window, p.close_key) != GLFW_PRESS : 1) && !glfwWindowShouldClose(window));
+
+    if (config->close_key) {
+      if (glfwGetKey(window, config->close_key) == GLFW_PRESS) break;
+    }
+  }
 
   glfwTerminate();
   timer_lib_shutdown();

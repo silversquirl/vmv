@@ -1,51 +1,41 @@
-#include <lauxlib.h>
-#include <string.h>
-
 #include <stdio.h>
-
+#include <string.h>
+#include <lauxlib.h>
 #include "lua_api.h"
+#include "lua_config.h"
+#include "debug.h"
 
-lua_State *L;
-
-int init_lua(const char *config_file, lua_State **setL) {
-  L = luaL_newstate();
-
-  if (!L)
+int init_lua(const char *config_file, struct config *config) {
+  config->lua = luaL_newstate();
+  if (!config->lua)
+    // TODO: add error codes
     return -1;
 
-  luaL_openlibs(L);
+  luaL_openlibs(config->lua);
 
-  if (luaL_loadfile(L, config_file))
+  if (luaL_loadfile(config->lua, config_file))
+    // TODO: add error codes
     return -1;
 
-  init_api(L);
+  init_api(config);
 
-  if (lua_pcall(L, 0, 1, 0))
+  if (lua_pcall(config->lua, 0, 1, 0))
+    // TODO: add error codes
     return -1;
 
-  printf("Ran config\n");
+  DEBUG("Ran config");
 
-  /* Config table on stack */
+  if (lua_getfield(config->lua, -1, "visualiser") != LUA_TFUNCTION)
+    // TODO: add error codes
+    return -1;
+  DEBUG("Found visualiser");
+  set_visualiser(config);
+  DEBUG("Set visualiser");
 
-  lua_pushnil(L);
+  lua_pop(config->lua, 1); // Pop config table
 
-  while (lua_next(L, -2)) {
-    printf("Read config value\n");
-    if (lua_type(L, -2) == LUA_TSTRING) {
-      printf("Key is string\n");
-      const char *k = lua_tolstring(L, -2, NULL);
-      if (!strcmp(k, "visualiser")) {
-        printf("Set visualiser\n");
-        visualiser_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-        continue; // luaL_ref() pops the value off the stack for us
-      }
-    }
-    lua_pop(L, 1);
-  }
+  DEBUG("Done!");
 
-  printf("Done!\n");
-
-  *setL = L;
   return 0;
 }
 

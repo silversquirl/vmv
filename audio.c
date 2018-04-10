@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <fftw3.h>
 #include "audio.h"
+#include "debug.h"
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
@@ -93,10 +94,9 @@ void audio_init(FILE *source_file) {
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
   out = fftw_alloc_complex(FFT_SIZE);
 
-  printf("Initialising FFT plan... ");
-  fflush(stdout);
+  DEBUG("Initialising FFT plan...");
   p = fftw_plan_dft_r2c_1d(CHUNK_SIZE, in, out, FFTW_MEASURE);
-  puts("Done");
+  DEBUG("FFT init done");
 
   bars.buf = calloc(NBAR, sizeof *bars.buf);
   bars.len = NBAR;

@@ -1,13 +1,14 @@
 #ifndef __VMV_LUA_API_H__
 #define __VMV_LUA_API_H__
 
+#include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-#include <lauxlib.h>
+#include "audio.h"
+#include "lua_config.h"
 
-extern int visualiser_ref;
-
-void init_api(lua_State *L);
-int run_visualisation(lua_State *L, unsigned int *bars, int length);
+void init_api(struct config *config);
+int run_visualisation(struct config *config, struct buffer bars);
+void set_visualiser(struct config *config);
 
 #endif

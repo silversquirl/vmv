@@ -38,18 +38,16 @@ int main() {
   FILE *audio_source = fdopen(audio_fd, "rb");
 #endif
 
-  lua_State *L;
-  init_lua("config.lua", &L);
-
-  audio_init(audio_source);
-
-  graphics_options gopt = {
+  // Defaults
+  struct config config = {
     .fps_cap = 60,
     .close_key = 0,
     .monitor = -1,
     .pos = {0, 0, 400, 600, 0},
-    .L = L,
   };
+  init_lua("config.lua", &config);
 
-  mainloop(gopt);
+  audio_init(audio_source);
+
+  mainloop(&config);
 }
