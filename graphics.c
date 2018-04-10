@@ -39,11 +39,6 @@ int get_monitor_details(int id, struct monitor_info *info) {
 }
 
 int mainloop(struct config *config) {
-  if (!glfwInit()) {
-    fprintf(stderr, "Failed to initialize GLFW!\n");
-    return -1;
-  }
-
   glfwWindowHint(GLFW_SAMPLES, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -106,6 +101,7 @@ int mainloop(struct config *config) {
 
     if (timer_elapsed(start) < 1.0f / config->fps_cap)
       continue;
+
     start = timer_current();
 
     glClear(GL_COLOR_BUFFER_BIT);

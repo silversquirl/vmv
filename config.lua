@@ -1,4 +1,5 @@
 function bar_vis(bars)
+  table.remove(bars, 1)
   width = 2 / #bars
   p1 = {}
   p2 = {}
@@ -18,15 +19,24 @@ function bar_vis(bars)
     p4[1] = i * width - 1 - bars_config['padding'] / 2
     p4[2] = -m / vmv.bar_max
 
-    vmv.draw.rectangle(p1, p2, p3, p4, bars_config['color'])
+    if i % 2 == 0 then
+      vmv.draw.rectangle(p1, p2, p3, p4, bars_config['color'])
+    else
+      vmv.draw.rectangle(p1, p2, p3, p4, bars_config['color_alt'])
+    end
   end
 end
 
 bars_config = {}
-bars_config['color'] = {1, 0, 0}
 bars_config['padding'] = 0.1
+bars_config['color'] = {1, 0, 1}
+bars_config['color_alt'] = {1, 0, 0}
 
 config = {}
 config['visualiser'] = bar_vis
+config['close_key'] = 'x'
+config['monitor'] = 0
+config['width'] = 500
+config['center'] = true
 
 return config

@@ -20,4 +20,5 @@ struct config {
 
 int init_lua(const char *config_file, struct config *config);
 
+
 #endif

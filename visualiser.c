@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <lua.h>
 #include <lualib.h>
+#include <GLFW/glfw3.h>
 
 #ifndef NO_POSIX
 #include <unistd.h>
@@ -38,11 +39,13 @@ int main() {
   FILE *audio_source = fdopen(audio_fd, "rb");
 #endif
 
+  if (!glfwInit()) {
+    fprintf(stderr, "Failed to initialize GLFW!\n");
+    return -1;
+  }
+
   // Defaults
   struct config config = {
-    .fps_cap = 60,
-    .close_key = 0,
-    .monitor = -1,
     .pos = {0, 0, 400, 600, 0},
   };
   init_lua("config.lua", &config);
