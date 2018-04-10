@@ -1,6 +1,8 @@
 #ifndef __VMV_AUDIO_H__
 #define __VMV_AUDIO_H__
 
+#include <stdio.h>
+
 #define BAR_MAX 1024
 
 extern struct buffer {
