@@ -2,7 +2,7 @@
 .PHONY: all clean
 
 CFLAGS := -Wall -Werror
-LDFLAGS := -lm
+LDFLAGS := -lm -lsoundio
 
 include config.mk
 
@@ -23,8 +23,6 @@ endif
 ifdef DEBUG
 CFLAGS += -DDEBUG
 endif
-
-LDFLAGS += -lsoundio
 
 SOURCE := $(wildcard *.c)
 OBJECTS := $(patsubst %.c,%.o,$(SOURCE))
