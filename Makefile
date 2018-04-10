@@ -20,6 +20,10 @@ ifdef STATIC_GLFW
 LDFLAGS += -lX11 -lpthread -ldl
 endif
 
+ifdef DEBUG
+CFLAGS += -DDEBUG
+endif
+
 all: visualiser
 
 clean:
