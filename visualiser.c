@@ -36,6 +36,10 @@ int main() {
   FILE *audio_source = stdin;
 #else
   int audio_fd = spawn_audio_producer();
+  if (audio_fd < 1) {
+    perror("Error spawning audio producer");
+    return 1;
+  }
   FILE *audio_source = fdopen(audio_fd, "rb");
 #endif
 
@@ -50,7 +54,10 @@ int main() {
   };
   init_lua("config.lua", &config);
 
-  audio_init(audio_source);
+  if (audio_init(audio_source)) {
+    perror("Error initialising audio");
+    return 1;
+  }
 
   mainloop(&config);
 }
