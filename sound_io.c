@@ -15,6 +15,9 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
     int frame_count = frames_left;
     if (soundio_instream_begin_read(instream, &areas, &frame_count))
       return;
+
+    if (!frame_count)
+      return;
     
     if (!areas) {
       int *nul = {0};
@@ -24,7 +27,6 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
     } else {
       for (int frame = 0; frame < frame_count; frame++) {
         for (int ch = 0; ch < instream->layout.channel_count; ch++) {
-          //memcpy(write_ptr, areas[ch].ptr, instream->bytes_per_sample);
           write(*(int *)instream->userdata, areas[ch].ptr, instream->bytes_per_sample);
           areas[ch].ptr += areas[ch].step;
         }

@@ -101,7 +101,6 @@ int mainloop(struct config *config) {
   tick_t start = 0;
 
   while (!glfwWindowShouldClose(window)) {
-    soundio_flush_events(config->sinfo.soundio);
     process_audio();
 
     if (timer_elapsed(start) < 1.0f / config->fps_cap)
