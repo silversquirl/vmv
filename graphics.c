@@ -43,6 +43,10 @@ int mainloop(struct config *config) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
   glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+
+  if (config->pos.ontop)
+    glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
+
 #ifdef GLFW_TRANSPARENT_FRAMEBUFFER
   glfwWindowHint(GLFW_DEPTH_BITS, 16);
   glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);

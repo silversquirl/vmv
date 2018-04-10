@@ -16,6 +16,7 @@ struct config {
   struct {
     unsigned x, y, width, height;
     char center; // When true, x and y are ignored
+    char ontop;
   } pos;
   int visualiser_ref;
   struct soundinfo sinfo;

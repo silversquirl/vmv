@@ -143,11 +143,19 @@ int init_lua(const char *config_file, struct config *config) {
   }
   lua_pop(config->lua, 1);
 
+  config->pos.center = 0;
   if (lua_getfield(config->lua, -1, "center") == LUA_TBOOLEAN) {
     DEBUG("Setting center to %d", lua_toboolean(config->lua, -1));
     config->pos.center = (char)lua_toboolean(config->lua, -1);
     if (config->pos.center)
       DEBUG("Ignoring x, y");
+  }
+  lua_pop(config->lua, 1);
+
+  config->pos.ontop = 0;
+  if (lua_getfield(config->lua, -1, "always_on_top") == LUA_TBOOLEAN) {
+    DEBUG("Setting always_on_top to %d", lua_toboolean(config->lua, -1));
+    config->pos.ontop = (char)lua_toboolean(config->lua, -1);
   }
   lua_pop(config->lua, 1);
 

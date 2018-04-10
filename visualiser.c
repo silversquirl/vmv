@@ -47,9 +47,10 @@ int main() {
   // Defaults
   struct config config = {
     .pos = {0, 0, 400, 600, 0},
-    .sinfo = sinfo,
   };
+
   init_lua("config.lua", &config);
+  config.sinfo = sinfo;
 
   if (audio_init(audio_source)) {
     perror("Error initialising audio");
