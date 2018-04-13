@@ -1,5 +1,6 @@
 #include "sound_io.h"
 #include "debug.h"
+#include "ring_buffer.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,8 +8,8 @@
 #include <unistd.h>
 
 static void read_callback(struct SoundIoInStream *instream, int frame_count_min, int frame_count_max) {
-  // We need to read at least frame_count_min frames, or else they'll be dropped
-  // However, we need to read frame_count_max frames to make sure audio enters at the right rate
+  struct ring_buffer *rb = instream->userdata;
+  // We want to read as many frames as possible
   int frames_left = frame_count_max;
   struct SoundIoChannelArea *areas;
   while (frames_left) {
@@ -17,17 +18,17 @@ static void read_callback(struct SoundIoInStream *instream, int frame_count_min,
       return;
 
     if (!frame_count)
-      return;
+      break;
     
     if (!areas) {
       int *nul = {0};
       for(int i = 0; i < frame_count * instream->bytes_per_frame; i++) {
-        write(*(int *)instream->userdata, nul, 1);
+        rb_write(rb, nul, 1);
       }
     } else {
       for (int frame = 0; frame < frame_count; frame++) {
         for (int ch = 0; ch < instream->layout.channel_count; ch++) {
-          write(*(int *)instream->userdata, areas[ch].ptr, instream->bytes_per_sample);
+          rb_write(rb, areas[ch].ptr, instream->bytes_per_sample);
           areas[ch].ptr += areas[ch].step;
         }
       }
@@ -84,7 +85,7 @@ struct SoundIoDevice *find_device(struct SoundIo *soundio) {
   return soundio_get_input_device(soundio, input_id);
 }
 
-int init_input(int pipe_write, struct soundinfo *out_soundinfo) {
+int init_input(struct soundinfo *out_soundinfo) {
   struct SoundIo *soundio = soundio_create();
   if (!soundio)
     return -1;
@@ -108,13 +109,13 @@ int init_input(int pipe_write, struct soundinfo *out_soundinfo) {
   instream->sample_rate = 44100;
   instream->read_callback = read_callback;
 
-  int *pipe_write_mem = malloc(sizeof(pipe_write));
-  *pipe_write_mem = pipe_write;
-
-  instream->userdata = pipe_write_mem;
-  
   if (soundio_instream_open(instream))
     return -1;
+
+  struct ring_buffer *rb = malloc(sizeof(struct ring_buffer));
+  rb_init(rb, instream->bytes_per_sample * 1024);
+
+  instream->userdata = rb;
 
   if (soundio_instream_start(instream))
     return -1;

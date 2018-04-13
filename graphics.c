@@ -101,12 +101,12 @@ int mainloop(struct config *config) {
   tick_t start = 0;
 
   while (!glfwWindowShouldClose(window)) {
-    process_audio();
-
     if (timer_elapsed(start) < 1.0f / config->fps_cap)
       continue;
 
     start = timer_current();
+
+    process_audio();
 
     glClear(GL_COLOR_BUFFER_BIT);
 

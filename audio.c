@@ -6,6 +6,10 @@
 #include <fftw3.h>
 #include "audio.h"
 #include "debug.h"
+#include "sound_io.h"
+#include "ring_buffer.h"
+#include <soundio/soundio.h>
+#include <string.h>
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
@@ -15,22 +19,22 @@
 #define SMOOTH_RATIO_UP 1.0 // Weight put on new value when it's greater than the old
 #define NBAR 10
 
-size_t read_chunk(int16_t *buf, size_t nmemb, FILE *f) {
-  size_t n = fread(buf, sizeof *buf, nmemb, f);
+size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
+  rb_read(rb, buf, nmemb * sizeof *buf);
   int8_t *tmp = (int8_t *)buf;
-  for (size_t i = 0; i < n; ++i) {
+  for (size_t i = 0; i < nmemb; ++i) {
     int8_t *data = tmp + i * sizeof *buf;
     int16_t x = data[0] | data[1] << 8;
     buf[i] = x;
   }
-  return n;
+  return nmemb;
 }
 
 struct buffer bars;
 
 // Audio processing state
 unsigned scale;
-FILE *src;
+struct ring_buffer *rb;
 int16_t abuf[CHUNK_SIZE];
 double *in;
 complex *out;
@@ -78,7 +82,7 @@ static inline void bar_calc(void) {
 }
 
 void process_audio(void) {
-  size_t n = read_chunk(abuf, CHUNK_SIZE, src);
+  size_t n = read_chunk(abuf, CHUNK_SIZE, rb);
   for (size_t i = 0; i < n; ++i) {
     in[i] = abuf[i];
   }
@@ -86,8 +90,8 @@ void process_audio(void) {
   bar_calc();
 }
 
-int audio_init(FILE *source_file) {
-  src = source_file;
+int audio_init(struct soundinfo *sinfo) {
+  rb = sinfo->instream->userdata;
 
   scale = INT16_MAX;
 

@@ -2,6 +2,7 @@
 #define __VMV_AUDIO_H__
 
 #include <stdio.h>
+#include "sound_io.h"
 
 #define BAR_MAX 1024
 
@@ -11,6 +12,6 @@ extern struct buffer {
 } bars;
 
 void process_audio(void);
-int audio_init(FILE *source_file);
+int audio_init(struct soundinfo *sinfo);
 
 #endif

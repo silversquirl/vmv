@@ -10,7 +10,7 @@ struct soundinfo {
   struct SoundIoInStream *instream;
 };
 
-int init_input(int pipe_write, struct soundinfo *out_soundinfo);
+int init_input(struct soundinfo *out_soundinfo);
 void destroy_input(struct soundinfo *info);
 
 #endif
