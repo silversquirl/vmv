@@ -40,7 +40,7 @@ double *in;
 complex *out;
 fftw_plan p;
 
-static inline void bar_calc(void) {
+static inline void bar_calc(float delta) {
   double idx_coef = (bars.len - 1) / log(FFT_SIZE - 1);
   double x = 0;
   unsigned max = 0;
@@ -74,20 +74,20 @@ static inline void bar_calc(void) {
   for (size_t i = 0; i < bars.len; ++i) {
     x = tmp[i] * val_coef;
     if (x > bars.buf[i]) {
-      bars.buf[i] = x * SMOOTH_RATIO_UP + bars.buf[i] * (1 - SMOOTH_RATIO_UP);
+      bars.buf[i] = x * SMOOTH_RATIO_UP * delta * 60 + bars.buf[i] * (1 - SMOOTH_RATIO_UP * delta * 60);
     } else if (x < bars.buf[i]) {
-      bars.buf[i] = x * SMOOTH_RATIO_DOWN + bars.buf[i] * (1 - SMOOTH_RATIO_DOWN);
+      bars.buf[i] = x * SMOOTH_RATIO_DOWN * delta * 60  + bars.buf[i] * (1 - SMOOTH_RATIO_DOWN * delta * 60);
     }
   }
 }
 
-void process_audio(void) {
+void process_audio(float delta) {
   size_t n = read_chunk(abuf, CHUNK_SIZE, rb);
   for (size_t i = 0; i < n; ++i) {
     in[i] = abuf[i];
   }
   fftw_execute(p);
-  bar_calc();
+  bar_calc(delta);
 }
 
 int audio_init(struct soundinfo *sinfo) {

@@ -8,6 +8,7 @@
 #include "graphics.h"
 #include "timer.h"
 #include "lua_api.h"
+#include "debug.h"
 
 GLFWwindow *window;
 
@@ -98,15 +99,23 @@ int mainloop(struct config *config) {
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
   timer_lib_initialize();
-  tick_t start = 0;
+  tick_t start = 0, fps_timer = timer_current();
+
+  int frames = 0;
 
   while (!glfwWindowShouldClose(window)) {
+    if (timer_elapsed(fps_timer) >= 1.0f) {
+      DEBUG("FPS: %d", frames);
+      frames = 0;
+      fps_timer = timer_current();
+    }
+
     if (timer_elapsed(start) < 1.0f / config->fps_cap)
       continue;
 
-    start = timer_current();
+    process_audio(timer_elapsed(start));
 
-    process_audio();
+    start = timer_current();
 
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -118,6 +127,7 @@ int mainloop(struct config *config) {
     if (config->close_key) {
       if (glfwGetKey(window, config->close_key) == GLFW_PRESS) break;
     }
+    frames++;
   }
 
   glfwTerminate();

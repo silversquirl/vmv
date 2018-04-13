@@ -11,7 +11,7 @@ extern struct buffer {
   unsigned *buf;
 } bars;
 
-void process_audio(void);
+void process_audio(float delta);
 int audio_init(struct soundinfo *sinfo);
 
 #endif

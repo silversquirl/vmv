@@ -36,4 +36,7 @@ return {
 
   -- If set to true, the visualiser window will always appear above all others.
   always_on_top = true,
+
+  -- 
+  fps_cap = 120,
 }
