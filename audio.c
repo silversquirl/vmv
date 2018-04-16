@@ -10,6 +10,7 @@
 #include "ring_buffer.h"
 #include <soundio/soundio.h>
 #include <string.h>
+#include "lua_config.h"
 
 #define CHUNK_SIZE 1024
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
@@ -17,7 +18,6 @@
 #define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
 #define SMOOTH_RATIO_DOWN 0.1 // Weight put on new value when it's less than the old
 #define SMOOTH_RATIO_UP 1.0 // Weight put on new value when it's greater than the old
-#define NBAR 10
 
 size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
   rb_read(rb, buf, nmemb * sizeof *buf);
@@ -33,6 +33,7 @@ size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
 struct buffer bars;
 
 // Audio processing state
+int nbar;
 unsigned scale;
 struct ring_buffer *rb;
 int nchan;
@@ -94,12 +95,13 @@ void process_audio(float delta) {
   bar_calc(delta);
 }
 
-int audio_init(struct soundinfo *sinfo) {
-  rb = sinfo->instream->userdata;
+int audio_init(struct config *config) {
+  nbar = config->bars;
+  rb = config->sinfo.instream->userdata;
 
   scale = INT16_MAX;
 
-  nchan = sinfo->instream->layout.channel_count;
+  nchan = config->sinfo.instream->layout.channel_count;
   abuf = malloc(nchan * CHUNK_SIZE * sizeof *abuf);
 
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
@@ -114,13 +116,13 @@ int audio_init(struct soundinfo *sinfo) {
   p = fftw_plan_dft_r2c_1d(CHUNK_SIZE, in, out, FFTW_MEASURE);
   DEBUG("FFT init done");
 
-  bars.buf = calloc(NBAR, sizeof *bars.buf);
+  bars.buf = calloc(nbar, sizeof *bars.buf);
   if (!bars.buf) {
     fftw_free(in);
     fftw_free(out);
     return -1;
   }
-  bars.len = NBAR;
+  bars.len = nbar;
   return 0;
 }
 

@@ -20,6 +20,7 @@ struct config {
   } pos;
   int visualiser_ref;
   struct soundinfo sinfo;
+  int bars;
 };
 
 int init_lua(const char *config_file, struct config *config);

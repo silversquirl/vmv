@@ -32,7 +32,7 @@ int main() {
   init_lua("config.lua", &config);
   config.sinfo = sinfo;
 
-  if (audio_init(&sinfo)) {
+  if (audio_init(&config)) {
     perror("Error initialising audio");
     return 1;
   }

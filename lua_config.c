@@ -246,6 +246,13 @@ int init_lua(const char *config_file, struct config *config) {
   }
   lua_pop(config->lua, 1);
 
+  config->bars = 10;
+  if (lua_getfield(config->lua, -1, "bars") == LUA_TNUMBER) {
+    DEBUG("Setting bars to %lld", lua_tointeger(config->lua, -1));
+    config->bars = lua_tointeger(config->lua, -1);
+  }
+  lua_pop(config->lua, 1);
+
   lua_pop(config->lua, 1); // Pop config table
 
   DEBUG("Done!");
