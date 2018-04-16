@@ -35,7 +35,8 @@ struct buffer bars;
 // Audio processing state
 unsigned scale;
 struct ring_buffer *rb;
-int16_t abuf[CHUNK_SIZE];
+int nchan;
+int16_t *abuf;
 double *in;
 complex *out;
 fftw_plan p;
@@ -82,9 +83,12 @@ static inline void bar_calc(float delta) {
 }
 
 void process_audio(float delta) {
-  size_t n = read_chunk(abuf, CHUNK_SIZE, rb);
-  for (size_t i = 0; i < n; ++i) {
-    in[i] = abuf[i];
+  size_t n = read_chunk(abuf, CHUNK_SIZE * nchan, rb);
+  for (size_t i = 0; i < n; i += nchan) {
+    in[i] = 0;
+    for (size_t j = 0; j < nchan; ++j)
+      in[i] += abuf[i + j];
+    in[i] /= nchan;
   }
   fftw_execute(p);
   bar_calc(delta);
@@ -94,6 +98,9 @@ int audio_init(struct soundinfo *sinfo) {
   rb = sinfo->instream->userdata;
 
   scale = INT16_MAX;
+
+  nchan = sinfo->instream->layout.channel_count;
+  abuf = malloc(nchan * CHUNK_SIZE * sizeof *abuf);
 
   in = fftw_malloc(CHUNK_SIZE * sizeof *in);
   if (!in) return -1;
