@@ -21,7 +21,7 @@ LDFLAGS += -lX11 -lpthread -ldl
 endif
 
 ifdef DEBUG
-CFLAGS += -DDEBUG
+CFLAGS += -DDEBUG -g
 endif
 
 SOURCE := $(wildcard *.c)
