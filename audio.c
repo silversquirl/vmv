@@ -19,7 +19,7 @@
 #define SMOOTH_RATIO_DOWN 0.1 // Weight put on new value when it's less than the old
 #define SMOOTH_RATIO_UP 0.2 // Weight put on new value when it's greater than the old
 
-size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
+void read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
   rb_read(rb, buf, nmemb * sizeof *buf);
   int8_t *tmp = (int8_t *)buf;
   for (size_t i = 0; i < nmemb; ++i) {
@@ -27,7 +27,6 @@ size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
     int16_t x = data[0] | data[1] << 8;
     buf[i] = x;
   }
-  return nmemb;
 }
 
 struct buffer bars;
@@ -86,11 +85,11 @@ static inline void bar_calc(float delta) {
 }
 
 void process_audio(float delta) {
-  size_t n = read_chunk(abuf, CHUNK_SIZE * nchan, rb);
-  for (size_t i = 0; i < n; i += nchan) {
+  read_chunk(abuf, CHUNK_SIZE * nchan, rb);
+  for (size_t i = 0; i < CHUNK_SIZE; ++i) {
     in[i] = 0;
     for (size_t j = 0; j < nchan; ++j)
-      in[i] += abuf[i + j];
+      in[i] += abuf[i * nchan + j];
     in[i] /= nchan;
   }
   fftw_execute(p);
