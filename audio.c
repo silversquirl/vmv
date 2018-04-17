@@ -17,7 +17,7 @@
 #define SCALE_RATIO_DOWN 0.05 // Weight put on new maximum when scaling down
 #define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
 #define SMOOTH_RATIO_DOWN 0.1 // Weight put on new value when it's less than the old
-#define SMOOTH_RATIO_UP 0.2 // Weight put on new value when it's greater than the old
+#define SMOOTH_RATIO_UP 1.0 // Weight put on new value when it's greater than the old
 
 void read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
   rb_read(rb, buf, nmemb * sizeof *buf);
