@@ -1,3 +1,4 @@
 *.o
 visualiser
 config.mk
+*.swp
