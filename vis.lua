@@ -1,6 +1,5 @@
 return function (config)
   return function (bars)
-    table.remove(bars, 1)
     local width = 2 / #bars
     local p1 = {}
     local p2 = {}

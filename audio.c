@@ -17,7 +17,7 @@
 #define SCALE_RATIO_DOWN 0.05 // Weight put on new maximum when scaling down
 #define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
 #define SMOOTH_RATIO_DOWN 0.1 // Weight put on new value when it's less than the old
-#define SMOOTH_RATIO_UP 1.0 // Weight put on new value when it's greater than the old
+#define SMOOTH_RATIO_UP 0.2 // Weight put on new value when it's greater than the old
 
 size_t read_chunk(int16_t *buf, size_t nmemb, struct ring_buffer *rb) {
   rb_read(rb, buf, nmemb * sizeof *buf);
@@ -44,32 +44,34 @@ fftw_plan p;
 
 static inline void bar_calc(float delta) {
   double idx_coef = (bars.len - 1) / log(FFT_SIZE - 1);
-  double x = 0;
   unsigned max = 0;
   unsigned tmp[bars.len];
-  for (size_t i = 0, old = 0, n = 0; i <= FFT_SIZE; ++i, ++n) {
+  double avg = 0;
+
+  for (size_t i=0, old=0, count=0; i < FFT_SIZE; i++, count++) {
     size_t cur = idx_coef * log1p(i);
     if (old != cur) {
-      x /= n;
-      tmp[cur] = x;
-      if (x > max) max = x;
+      avg /= count;
+      tmp[old] = avg;
+      if (avg > max) max = avg;
 
-      x = (tmp[cur] - tmp[old]) / (double)(cur - old);
-      for (size_t j = old + 1; j < cur; ++j)
-        tmp[j] = tmp[j - 1] + x;
+      double inter = (tmp[cur] - tmp[old]) / (double)(cur - old);
+      for (size_t j = old + 1; j < cur; j++)
+        tmp[j] = tmp[j - 1] + inter;
 
-      x = 0;
-      n = 0;
+      avg = 0;
+      count = 0;
       old = cur;
-    } else {
-      x += cabs(out[i]);
     }
+    avg += cabs(out[i]);
   }
 
+  double x = 0;
+
   if (max > scale) {
-    scale = max * SCALE_RATIO_UP + scale * (1 - SCALE_RATIO_UP);
+    scale = max * SCALE_RATIO_UP * delta * 60 + scale * (1 - SCALE_RATIO_UP * delta * 60);
   } else if (max < scale) {
-    scale = max * SCALE_RATIO_DOWN + scale * (1 - SCALE_RATIO_DOWN);
+    scale = max * SCALE_RATIO_DOWN * delta * 60 + scale * (1 - SCALE_RATIO_DOWN * delta * 60);
   }
   double val_coef = (double)BAR_MAX / scale;
 

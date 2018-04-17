@@ -11,7 +11,7 @@ return {
   -- This option should specify a function to use as a visualiser.
   -- See vis.lua for more details.
   visualiser = require("vis")({
-    padding = 0.1,
+    padding = 0.005,
     color = {1, 0, 1},
     color_alt = {1, 0, 0},
   }),
@@ -41,5 +41,5 @@ return {
   --fps_cap = 60,
 
   -- Sets the number of bars to appear. Defaults to 10.
-  bars = 15,
+  bars = 63,
 }
