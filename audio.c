@@ -46,7 +46,7 @@ static inline void bar_calc(float delta) {
   double x = 0;
   unsigned max = 0;
   unsigned tmp[bars.len];
-  for (size_t i = 0, old = 0, n = 0; i <= FFT_SIZE; ++i, ++n) {
+  for (size_t i = 0, old = 0, n = 0; i < FFT_SIZE; ++i, ++n) {
     size_t cur = idx_coef * log1p(i);
     if (old != cur) {
       x /= n;
