@@ -10,7 +10,7 @@ This file allows you to specify which visualiser to use as well as various other
 return {
   -- This option should specify a function to use as a visualiser.
   -- See vis.lua for more details.
-  visualiser = require("vis")({
+  visualiser = require("bar")({
     padding = 0.005,
     color = {1, 0, 1},
     color_alt = {1, 0, 0},
