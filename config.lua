@@ -38,7 +38,7 @@ return {
   always_on_top = true,
 
   -- Sets an FPS cap. If not present, this will be automatically set according to your monitor refresh rate.
-  --fps_cap = 60,
+  fps_cap = 60,
 
   -- Sets the number of bars to appear. Defaults to 10.
   bars = 63,

@@ -12,7 +12,7 @@
 #include <string.h>
 #include "lua_config.h"
 
-#define CHUNK_SIZE 1024
+#define CHUNK_SIZE 4096
 #define FFT_SIZE (CHUNK_SIZE / 2 + 1)
 #define SCALE_RATIO_DOWN 0.05 // Weight put on new maximum when scaling down
 #define SCALE_RATIO_UP 1.0 // Weight put on new maximum when scaling up
@@ -42,27 +42,23 @@ complex *out;
 fftw_plan p;
 
 static inline void bar_calc(float delta) {
-  double idx_coef = (bars.len - 1) / log(FFT_SIZE - 1);
   unsigned max = 0;
   unsigned tmp[bars.len];
-  double avg = 0;
 
-  for (size_t i=0, old=0, count=0; i < FFT_SIZE; i++, count++) {
-    size_t cur = idx_coef * log1p(i);
-    if (old != cur) {
-      avg /= count;
-      tmp[old] = avg;
-      if (avg > max) max = avg;
-
-      double inter = (tmp[cur] - tmp[old]) / (double)(cur - old);
-      for (size_t j = old + 1; j < cur; j++)
-        tmp[j] = tmp[j - 1] + inter;
-
-      avg = 0;
-      count = 0;
-      old = cur;
+  for (size_t i = 0; i < bars.len; i++) {
+    size_t idx_min = pow(FFT_SIZE, (double)i / bars.len);
+    size_t idx_max = pow(FFT_SIZE, (double)(i+1) / bars.len);
+    double avg = 0;
+    if (idx_min == idx_max) {
+      avg = i == 0 ? 0.0f : tmp[i-1];
+    } else {
+      for (size_t j = idx_min; j < idx_max; j++) {
+        avg += cabs(out[j]);
+      }
+      avg /= idx_max - idx_min;
     }
-    avg += cabs(out[i]);
+    if (avg > max) max = avg;
+    tmp[i] = avg;
   }
 
   double x = 0;

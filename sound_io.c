@@ -113,7 +113,7 @@ int init_input(struct soundinfo *out_soundinfo) {
     return -1;
 
   struct ring_buffer *rb = malloc(sizeof(struct ring_buffer));
-  rb_init(rb, instream->bytes_per_sample * 1024);
+  rb_init(rb, instream->bytes_per_frame * 4096);
 
   instream->userdata = rb;
 
