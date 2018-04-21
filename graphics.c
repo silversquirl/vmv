@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <GL/glew.h>
+#include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <soundio/soundio.h>
 #include "audio.h"
@@ -87,12 +87,6 @@ int mainloop(struct config *config) {
   }
 
   glfwMakeContextCurrent(window);
-
-  if (glewInit() != GLEW_OK) {
-    fprintf(stderr, "Failed to initialize GLEW!\n");
-    glfwTerminate();
-    return -1;
-  }
 
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
