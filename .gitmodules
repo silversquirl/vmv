@@ -1,0 +1,9 @@
+[submodule "extern/libsoundio"]
+	path = extern/libsoundio
+	url = https://github.com/andrewrk/libsoundio
+[submodule "extern/glfw"]
+	path = extern/glfw
+	url = https://github.com/glfw/glfw
+[submodule "extern/Lua"]
+	path = extern/Lua
+	url = https://github.com/walterschell/Lua
